@@ -84,10 +84,10 @@ def generate(input):
         sampler_name = values['sampler_name'] # uni_pc
         scheduler = values['scheduler'] # simple
         steps = values['steps'] # 8
-        noise_seed = values['noise_seed'] # 1.0
-        if noise_seed == 0:
+        seed = values['seed'] # 1.0
+        if seed == 0:
             random.seed(int(time.time()))
-            noise_seed = random.randint(0, 18446744073709551615)
+            seed = random.randint(0, 18446744073709551615)
         fps = values['fps'] # 24
         filename_prefix = values['filename_prefix'] # wan_i2v_phantom
 
@@ -97,7 +97,7 @@ def generate(input):
         input_image = LoadImage.load_image(input_image)[0]
         positive, negative_text, negative_img_text, latent_image = WanPhantomSubjectToVideo.encode(positive, negative, vae, width, height, length, batch_size, input_image)
         negative_combined = ConditioningCombine.combine(negative_text, negative_img_text)[0]
-        samples = KSampler.sample(model, noise_seed, steps, cfg, sampler_name, scheduler, positive, negative_combined, latent_image)[0]
+        samples = KSampler.sample(model, seed, steps, cfg, sampler_name, scheduler, positive, negative_combined, latent_image)[0]
         decoded_images = VAEDecode.decode(vae, samples)[0].detach()
         images_to_mp4(decoded_images, f"/content/wan2.1-i2v-phantom-{seed}-tost.mp4", fps)
         
