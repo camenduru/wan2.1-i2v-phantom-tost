@@ -15,6 +15,7 @@ VAELoader = NODE_CLASS_MAPPINGS["VAELoader"]()
 
 CLIPTextEncode = NODE_CLASS_MAPPINGS["CLIPTextEncode"]()
 LoadImage = NODE_CLASS_MAPPINGS["LoadImage"]()
+ImageBatch = NODE_CLASS_MAPPINGS["ImageBatch"]()
 
 WanPhantomSubjectToVideo = nodes_wan.NODE_CLASS_MAPPINGS["WanPhantomSubjectToVideo"]()
 ConditioningCombine = NODE_CLASS_MAPPINGS["ConditioningCombine"]()
@@ -71,8 +72,14 @@ def generate(input):
     try:
         values = input["input"]
 
-        input_image = values['input_image']
-        input_image = download_file(url=input_image, save_dir='/content/ComfyUI/input', file_name='input_image')
+        input_image1 = values['input_image1']
+        input_image1 = download_file(url=input_image1, save_dir='/content/dev/ComfyUI/input', file_name='input_image1')
+        input_image2 = values['input_image2']
+        input_image2 = download_file(url=input_image2, save_dir='/content/dev/ComfyUI/input', file_name='input_image2')
+        input_image3 = values['input_image3']
+        input_image3 = download_file(url=input_image3, save_dir='/content/dev/ComfyUI/input', file_name='input_image3')
+        input_image4 = values['input_image4']
+        input_image4 = download_file(url=input_image4, save_dir='/content/dev/ComfyUI/input', file_name='input_image4')
         positive_prompt = values['positive_prompt'] # A mid-shot of a asian woman in a sparkly pink crop top and low-rise cargo pants, dancing sharply in sync with the beat while singing straight into the camera. Her hair is styled in voluminous waves with front strands pulled into mini pigtails. Behind her, colored spotlights flash across a silver sequin curtain backdrop. Pure early-2000s pop performance.
         negative_prompt = values['negative_prompt'] # 色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿
         width = values['width'] # 1024
@@ -94,8 +101,14 @@ def generate(input):
         positive = CLIPTextEncode.encode(clip, positive_prompt)[0]
         negative = CLIPTextEncode.encode(clip, negative_prompt)[0]
         model = ModelSamplingSD3.patch(lora, shift)[0]
-        input_image = LoadImage.load_image(input_image)[0]
-        positive, negative_text, negative_img_text, latent_image = WanPhantomSubjectToVideo.encode(positive, negative, vae, width, height, length, batch_size, input_image)
+        input_image1 = LoadImage.load_image(input_image1)[0]
+        input_image2 = LoadImage.load_image(input_image2)[0]
+        input_image3 = LoadImage.load_image(input_image3)[0]
+        input_image4 = LoadImage.load_image(input_image4)[0]
+        input_image12 = ImageBatch.batch(input_image1, input_image2)[0]
+        input_image123 = ImageBatch.batch(input_image12, input_image3)[0]
+        input_images = ImageBatch.batch(input_image123, input_image4)[0]
+        positive, negative_text, negative_img_text, latent_image = WanPhantomSubjectToVideo.encode(positive, negative, vae, width, height, length, batch_size, input_images)
         negative_combined = ConditioningCombine.combine(negative_text, negative_img_text)[0]
         samples = KSampler.sample(model, seed, steps, cfg, sampler_name, scheduler, positive, negative_combined, latent_image)[0]
         decoded_images = VAEDecode.decode(vae, samples)[0].detach()
