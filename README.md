@@ -18,3 +18,10 @@ https://phantom-video.github.io/Phantom/ <br />
 https://wan.video/
 
 ### 🖼 Output
+
+Input Image:
+![Image](https://github.com/user-attachments/assets/f6eaf940-9c7e-46be-80bb-f1fa95789baf)
+
+Output Video:
+
+https://github.com/user-attachments/assets/2221c3a4-8c0d-43c4-b47b-4495887996a1
