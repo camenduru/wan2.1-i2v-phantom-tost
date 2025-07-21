@@ -11,9 +11,9 @@
 	"batch_size": 1,
 	"shift": 3.0,
 	"cfg": 1.0,
-	"sampler_name": "euler",
-	"scheduler": "beta",
-	"steps": 4,
+	"sampler_name": "uni_pc",
+	"scheduler": "simple",
+	"steps": 8,
 	"seed": 0,
 	"fps": 16,
 	"filename_prefix": "wan_t2v"
